@@ -10,18 +10,18 @@
 ## Game Concept
 
 Street Fighter-style 2D fighting game:
-- 2 players local (keyboard/controller) or 1 vs AI
-- Character selection
+- Two-player local (keyboard / gamepad); AI not implemented yet
+- Character select: P1 `A`/`D`, P2 `←`/`→`, `SPACE` to fight; roster from `CHARACTERS` (Kenney PNG poses)
 - Arcade-style combat
 
 ## Architecture
 
-Scene flow: Boot → MainMenu → CharacterSelect → Fight → Victory → MainMenu
+Scene flow: Boot → MainMenu → CharacterSelect → Fight → Victory → MainMenu (`VictoryScene` shows winner portrait + name)
 
 Key modules:
-- `src/game/scenes/` - Phaser scenes
-- `src/game/entities/` - Fighter, AIController
-- `src/game/systems/` - InputManager, PhysicsManager
+- `src/game/scenes/` - Phaser scenes (`CharacterSelectScene`: portraits + control hints)
+- `src/game/entities/` - `Fighter`
+- `src/game/systems/` - `InputManager` (P1: WASD, R punch, F kick, W jump; P2: arrows, O punch, L kick, Up jump; gamepads A/B punch/kick, X jump)
 - `src/game/data/` - Character definitions
 
 ## Key Decisions

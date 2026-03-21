@@ -2,8 +2,8 @@ import Phaser from 'phaser';
 
 /**
  * Maps keyboard and gamepad input to fighting game controls.
- * P1: WASD + U (punch), I (kick) | Gamepad 0: left stick, A/B
- * P2: Arrows + J (punch), K (kick) | Gamepad 1: left stick, A/B
+ * P1: WASD + R (punch), F (kick) | Gamepad 0: left stick, A/B
+ * P2: Arrows + O (punch), L (kick) | Gamepad 1: left stick, A/B
  */
 export class InputManager {
   private readonly keys: {
@@ -26,8 +26,8 @@ export class InputManager {
         right: kb.addKey(Phaser.Input.Keyboard.KeyCodes.D),
         up: kb.addKey(Phaser.Input.Keyboard.KeyCodes.W),
         down: kb.addKey(Phaser.Input.Keyboard.KeyCodes.S),
-        punch: kb.addKey(Phaser.Input.Keyboard.KeyCodes.U),
-        kick: kb.addKey(Phaser.Input.Keyboard.KeyCodes.I),
+        punch: kb.addKey(Phaser.Input.Keyboard.KeyCodes.R),
+        kick: kb.addKey(Phaser.Input.Keyboard.KeyCodes.F),
       };
     } else {
       this.keys = {
@@ -35,8 +35,8 @@ export class InputManager {
         right: kb.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
         up: kb.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
         down: kb.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
-        punch: kb.addKey(Phaser.Input.Keyboard.KeyCodes.J),
-        kick: kb.addKey(Phaser.Input.Keyboard.KeyCodes.K),
+        punch: kb.addKey(Phaser.Input.Keyboard.KeyCodes.O),
+        kick: kb.addKey(Phaser.Input.Keyboard.KeyCodes.L),
       };
     }
   }

@@ -5,7 +5,7 @@
 - **Type**: Client-side 2D arcade fighting game (browser)
 - **Framework**: Phaser 3, TypeScript, Vite
 
-See [project-overview.md](project-overview.md) for tech stack, architecture, and key decisions.
+See [project-overview.md](project-overview.md) for tech stack, architecture, and key decisions. End-user install, controls, and credits: root [README.md](../../README.md).
 
 ## Notes by Topic
 
@@ -28,7 +28,7 @@ ZenithFighters/
       config.ts       - Phaser config
       main.ts         - Game creation
       scenes/         - Boot, MainMenu, CharacterSelect, Fight, Victory
-      entities/       - Fighter, AIController
+      entities/       - Fighter
       systems/        - InputManager, PhysicsManager
       data/           - Character definitions, assetPaths
 ```

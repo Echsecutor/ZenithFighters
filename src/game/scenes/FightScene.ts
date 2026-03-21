@@ -13,7 +13,7 @@ export class FightScene extends Phaser.Scene {
   private physicsMgr!: PhysicsManager;
   private healthBar1!: Phaser.GameObjects.Graphics;
   private healthBar2!: Phaser.GameObjects.Graphics;
-  private vsAI = false;
+  private fightBgm?: Phaser.Sound.BaseSound;
 
   constructor() {
     super({ key: 'Fight' });
@@ -21,12 +21,12 @@ export class FightScene extends Phaser.Scene {
 
   preload(): void {
     this.load.image('arcade_floor', SCENE_ASSETS.arcadeFloor);
+    this.load.audio('fight_bgm', [...SCENE_ASSETS.fightBgm]);
   }
 
-  create(data: { player1Char?: string; player2Char?: string; vsAI?: boolean }): void {
+  create(data: { player1Char?: string; player2Char?: string }): void {
     const width = this.cameras.main.width;
     const height = this.cameras.main.height;
-    this.vsAI = data.vsAI === true;
 
     const p1Id = data.player1Char ?? 'player';
     const p2Id = data.player2Char ?? 'female';
@@ -103,6 +103,25 @@ export class FightScene extends Phaser.Scene {
     p2Label.setOrigin(0.5, 0.5);
     p1Label.setDepth(100);
     p2Label.setDepth(100);
+
+    // Phaser does not call Scene.shutdown(); cleanup must listen on sys.events.
+    this.sys.events.once(Phaser.Scenes.Events.SHUTDOWN, this.stopFightBgm, this);
+
+    if (this.cache.audio.exists('fight_bgm')) {
+      this.sound.stopByKey('fight_bgm');
+      this.fightBgm = this.sound.add('fight_bgm', { loop: true, volume: 0.35 });
+      this.fightBgm.play();
+    }
+  }
+
+  private stopFightBgm(): void {
+    if (this.fightBgm) {
+      this.fightBgm.stop();
+      this.fightBgm.destroy();
+      this.fightBgm = undefined;
+    } else {
+      this.sound.stopByKey('fight_bgm');
+    }
   }
 
   /** Arena-style backdrop (procedural gradient + subtle grid). */
@@ -151,14 +170,14 @@ export class FightScene extends Phaser.Scene {
 
   update(): void {
     const dir1 = this.input1.getDirection();
-    const dir2 = this.vsAI ? { x: 0, y: 0 } : this.input2.getDirection();
+    const dir2 = this.input2.getDirection();
 
     if (this.fighter1.state !== 'hurt' && this.fighter1.state !== 'ko') {
       if (this.input1.isJumpJustDown()) this.fighter1.tryJump();
       else if (this.input1.isPunchJustDown()) this.fighter1.tryPunch();
       else if (this.input1.isKickJustDown()) this.fighter1.tryKick();
     }
-    if (this.fighter2.state !== 'hurt' && this.fighter2.state !== 'ko' && !this.vsAI) {
+    if (this.fighter2.state !== 'hurt' && this.fighter2.state !== 'ko') {
       if (this.input2.isJumpJustDown()) this.fighter2.tryJump();
       else if (this.input2.isPunchJustDown()) this.fighter2.tryPunch();
       else if (this.input2.isKickJustDown()) this.fighter2.tryKick();
@@ -173,9 +192,19 @@ export class FightScene extends Phaser.Scene {
     this.drawHealthBars(this.fighter1.characterDef, this.fighter2.characterDef);
 
     if (this.fighter1.state === 'ko') {
-      this.scene.start('Victory', { winner: 2 });
+      const w = this.fighter2.characterDef;
+      this.scene.start('Victory', {
+        winner: 2,
+        winnerSpritePrefix: w.spritePrefix,
+        winnerName: w.name,
+      });
     } else if (this.fighter2.state === 'ko') {
-      this.scene.start('Victory', { winner: 1 });
+      const w = this.fighter1.characterDef;
+      this.scene.start('Victory', {
+        winner: 1,
+        winnerSpritePrefix: w.spritePrefix,
+        winnerName: w.name,
+      });
     }
   }
 }

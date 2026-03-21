@@ -36,8 +36,4 @@ export class PhysicsManager {
     const knockback = attacker.facingRight ? 120 : -120;
     defender.takeDamage(attacker.hitboxDamage, knockback);
   }
-
-  reset(): void {
-    this.hitByAttacker.clear();
-  }
 }

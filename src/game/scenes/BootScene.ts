@@ -1,5 +1,53 @@
 import Phaser from 'phaser';
-import { PLAYER_POSES, FEMALE_POSES } from '../data/assetPaths';
+import { CHARACTERS } from '../data/characters';
+import { KENNEY_CHARACTER_POSES } from '../data/assetPaths';
+
+function preloadCharacterSprites(scene: Phaser.Scene, spritePrefix: string): void {
+  const poses = KENNEY_CHARACTER_POSES[spritePrefix];
+  if (!poses) return;
+  for (const [key, path] of Object.entries(poses)) {
+    scene.load.image(`${spritePrefix}_${key}`, path);
+  }
+}
+
+function registerCharacterAnimations(scene: Phaser.Scene, spritePrefix: string): void {
+  scene.anims.create({
+    key: `${spritePrefix}_idle`,
+    frames: [{ key: `${spritePrefix}_idle` }],
+    frameRate: 1,
+    repeat: -1,
+  });
+  scene.anims.create({
+    key: `${spritePrefix}_walk`,
+    frames: [{ key: `${spritePrefix}_walk1` }, { key: `${spritePrefix}_walk2` }],
+    frameRate: 8,
+    repeat: -1,
+  });
+  scene.anims.create({
+    key: `${spritePrefix}_punch`,
+    frames: [{ key: `${spritePrefix}_action1` }, { key: `${spritePrefix}_action2` }],
+    frameRate: 12,
+    repeat: 0,
+  });
+  scene.anims.create({
+    key: `${spritePrefix}_kick`,
+    frames: [{ key: `${spritePrefix}_kick` }],
+    frameRate: 1,
+    repeat: 0,
+  });
+  scene.anims.create({
+    key: `${spritePrefix}_hurt`,
+    frames: [{ key: `${spritePrefix}_hurt` }],
+    frameRate: 1,
+    repeat: 0,
+  });
+  scene.anims.create({
+    key: `${spritePrefix}_jump`,
+    frames: [{ key: `${spritePrefix}_jump` }],
+    frameRate: 1,
+    repeat: -1,
+  });
+}
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -15,104 +63,21 @@ export class BootScene extends Phaser.Scene {
     });
     text.setOrigin(0.5);
 
-    // Kenney platformer characters (Player, Female) - individual pose PNGs
-    Object.entries(PLAYER_POSES).forEach(([key, path]) => {
-      this.load.image(`player_${key}`, path);
-    });
-    Object.entries(FEMALE_POSES).forEach(([key, path]) => {
-      this.load.image(`female_${key}`, path);
-    });
-
+    const seen = new Set<string>();
+    for (const c of CHARACTERS) {
+      if (seen.has(c.spritePrefix)) continue;
+      seen.add(c.spritePrefix);
+      preloadCharacterSprites(this, c.spritePrefix);
+    }
   }
 
   create(): void {
-    // Player animations
-    this.anims.create({
-      key: 'player_idle',
-      frames: [{ key: 'player_idle' }],
-      frameRate: 1,
-      repeat: -1,
-    });
-    this.anims.create({
-      key: 'player_walk',
-      frames: [
-        { key: 'player_walk1' },
-        { key: 'player_walk2' },
-      ],
-      frameRate: 8,
-      repeat: -1,
-    });
-    this.anims.create({
-      key: 'player_punch',
-      frames: [
-        { key: 'player_action1' },
-        { key: 'player_action2' },
-      ],
-      frameRate: 12,
-      repeat: 0,
-    });
-    this.anims.create({
-      key: 'player_kick',
-      frames: [{ key: 'player_kick' }],
-      frameRate: 1,
-      repeat: 0,
-    });
-    this.anims.create({
-      key: 'player_hurt',
-      frames: [{ key: 'player_hurt' }],
-      frameRate: 1,
-      repeat: 0,
-    });
-    this.anims.create({
-      key: 'player_jump',
-      frames: [{ key: 'player_jump' }],
-      frameRate: 1,
-      repeat: -1,
-    });
-
-    // Female animations
-    this.anims.create({
-      key: 'female_idle',
-      frames: [{ key: 'female_idle' }],
-      frameRate: 1,
-      repeat: -1,
-    });
-    this.anims.create({
-      key: 'female_walk',
-      frames: [
-        { key: 'female_walk1' },
-        { key: 'female_walk2' },
-      ],
-      frameRate: 8,
-      repeat: -1,
-    });
-    this.anims.create({
-      key: 'female_punch',
-      frames: [
-        { key: 'female_action1' },
-        { key: 'female_action2' },
-      ],
-      frameRate: 12,
-      repeat: 0,
-    });
-    this.anims.create({
-      key: 'female_kick',
-      frames: [{ key: 'female_kick' }],
-      frameRate: 1,
-      repeat: 0,
-    });
-    this.anims.create({
-      key: 'female_hurt',
-      frames: [{ key: 'female_hurt' }],
-      frameRate: 1,
-      repeat: 0,
-    });
-    this.anims.create({
-      key: 'female_jump',
-      frames: [{ key: 'female_jump' }],
-      frameRate: 1,
-      repeat: -1,
-    });
+    const seen = new Set<string>();
+    for (const c of CHARACTERS) {
+      if (seen.has(c.spritePrefix)) continue;
+      seen.add(c.spritePrefix);
+      registerCharacterAnimations(this, c.spritePrefix);
+    }
 
     this.scene.start('MainMenu');
   }

@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import type { Types } from 'phaser';
 import { BootScene } from './scenes/BootScene';
 import { MainMenuScene } from './scenes/MainMenuScene';
