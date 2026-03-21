@@ -1,0 +1,13 @@
+---
+alwaysApply: true
+---
+
+# Asset Attribution
+
+When adding or changing game assets (sprites, audio, fonts, tilesets, etc.):
+
+**Always document asset sources in `README.md`.**
+
+- Add or update an **Acknowledgements** section listing all third-party asset packs
+- For each asset: name, creator/source, license, and link if available
+- Keep the list current when adding or removing assets

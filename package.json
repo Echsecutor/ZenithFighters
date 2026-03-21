@@ -10,7 +10,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "download-assets": "powershell -ExecutionPolicy Bypass -File ./scripts/download-assets.ps1"
   },
   "dependencies": {
     "phaser": "^3.90.0"

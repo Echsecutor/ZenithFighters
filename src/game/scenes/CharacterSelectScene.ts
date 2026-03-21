@@ -30,7 +30,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     placeholder.setOrigin(0.5);
 
     this.input.keyboard?.once('keydown-SPACE', () => {
-      this.scene.start('Fight', { player1Char: 'default', player2Char: 'default', vsAI: false });
+      this.scene.start('Fight', { player1Char: 'player', player2Char: 'female', vsAI: false });
     });
   }
 }

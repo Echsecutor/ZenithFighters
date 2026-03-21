@@ -12,6 +12,8 @@ See [project-overview.md](project-overview.md) for tech stack, architecture, and
 | Topic | File | Description |
 |-------|------|-------------|
 | Project structure, tech stack, architecture | [project-overview.md](project-overview.md) | High-level overview of the codebase |
+| Terminal commands to avoid | [terminal-avoid.md](terminal-avoid.md) | PowerShell/System.Drawing crash; use hardcoded asset dims instead |
+| Assets (Kenney, paths) | [assets.md](assets.md) | CC0 characters, individual PNGs, assetPaths.ts |
 
 ## Folder Structure
 
@@ -28,7 +30,7 @@ ZenithFighters/
       scenes/         - Boot, MainMenu, CharacterSelect, Fight, Victory
       entities/       - Fighter, AIController
       systems/        - InputManager, PhysicsManager
-      data/           - Character definitions
+      data/           - Character definitions, assetPaths
 ```
 
 ## Conventions
