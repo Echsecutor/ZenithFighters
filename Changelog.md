@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.1.0] 2026-03-21
+
+### Added
+
+- Fight scene: **blue** / **red** down-pointing markers above player 1 / player 2 (procedural textures, gentle bob), hidden on KO — easier to tell fighters apart with the same character (`FightScene.ensurePlayerArrowTextures`, `syncPlayerArrow`)
+- GitHub Actions workflow **Deploy to GitHub Pages** (`.github/workflows/deploy-pages.yml`): `npm ci`, `npm run build`, deploy `dist/` on push to `main` and on `workflow_dispatch` (requires Pages source **GitHub Actions** in repository settings)
+
+
+
 ### Changed
 
 - VS CPU **easy** never fires **specials**; **hard** fires a special on the first eligible tick whenever it is off cooldown and roughly in mid range (no random gate), on top of existing hard pressure / damage scaling (`CpuController`)

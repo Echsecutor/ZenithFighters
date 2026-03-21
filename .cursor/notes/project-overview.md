@@ -22,7 +22,13 @@ Key modules:
 - `src/game/scenes/` - Phaser scenes (`CharacterSelectScene`: portraits; matchup/mode/player-label Y derived from portrait row so yellow mode line clears P1/P2 labels; fight-controls vs footer use separate bands + `bottomHint` line spacing)
 - `src/game/entities/` - `Fighter`
 - `src/game/systems/` - `InputManager` (P1: WASD, R/F, E special, W jump; P2: arrows, O/L, U special, Up jump; gamepads: Phaser `Gamepad` **A/B/X/Y are booleans** (not `.pressed`); **just-pressed** = current `faceDown` && !previous, previous synced on `POST_UPDATE`), `PhysicsManager` (melee + straight shots + boomerang), `CpuController` (VS CPU)
-- `src/game/data/` - Character definitions (`special` + `SpecialSpawnRequest`); `entities/`: `Fighter` (`applyDotDamage`), `SpecialProjectile`, `BoomerangProjectile`, `GroundHazard` (sprite animation from `FightScene.ensureHazardTextures`)
+- `src/game/data/` - Character definitions (`special` + `SpecialSpawnRequest`); `entities/`: `Fighter` (`applyDotDamage`), `SpecialProjectile`, `BoomerangProjectile`, `GroundHazard` (sprite animation from `FightScene.ensureHazardTextures`); **Fight** shows blue/red down-chevron markers above P1/P2 (`FightScene.ensurePlayerArrowTextures`, `syncPlayerArrow`, depth above fighters)
+
+## CI / GitHub Pages
+
+- Workflow: `.github/workflows/deploy-pages.yml` — Ubuntu, Node 20, `npm ci` + `npm run build`, `actions/upload-pages-artifact` + `actions/deploy-pages` on `push` to `main` and `workflow_dispatch`
+- **Settings → Pages**: source must be **GitHub Actions** (not “Deploy from a branch”)
+- Production `base` is `./` in `vite.config.ts` so asset URLs work on a project Pages path (`/RepoName/`)
 
 ## Key Decisions
 

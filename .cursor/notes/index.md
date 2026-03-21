@@ -19,6 +19,7 @@ See [project-overview.md](project-overview.md) for tech stack, architecture, and
 
 ```
 ZenithFighters/
+  .github/workflows/   - GitHub Actions (Pages: build + deploy `dist/`)
   .cursor/notes/       - AI notes (this folder)
   public/              - Static assets (incl. favicon.ico)
     assets/            - Characters, UI, audio, backgrounds

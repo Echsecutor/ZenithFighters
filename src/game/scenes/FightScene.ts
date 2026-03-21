@@ -27,6 +27,8 @@ export class FightScene extends Phaser.Scene {
   private boomerangs: BoomerangProjectile[] = [];
   private groundHazards: GroundHazard[] = [];
   private collidePlatform!: Phaser.Types.Physics.Arcade.GameObjectWithBody;
+  private playerArrow1!: Phaser.GameObjects.Image;
+  private playerArrow2!: Phaser.GameObjects.Image;
 
   /** Outgoing damage multiplier for P2 when VS CPU hard mode. */
   private static readonly HARD_CPU_DAMAGE_MULT = 1.35;
@@ -72,6 +74,29 @@ export class FightScene extends Phaser.Scene {
       g.generateTexture('special_boomerang', 32, 32);
       g.destroy();
     }
+  }
+
+  /** Down-pointing chevrons above fighters (P1 blue, P2 red). */
+  private ensurePlayerArrowTextures(): void {
+    const w = 22;
+    const h = 18;
+    const draw = (key: string, fill: number, stroke: number) => {
+      if (this.textures.exists(key)) return;
+      const g = this.make.graphics({ x: 0, y: 0 });
+      g.fillStyle(fill, 1);
+      g.lineStyle(2, stroke, 0.9);
+      g.beginPath();
+      g.moveTo(w / 2, h - 1);
+      g.lineTo(2, 3);
+      g.lineTo(w - 2, 3);
+      g.closePath();
+      g.fillPath();
+      g.strokePath();
+      g.generateTexture(key, w, h);
+      g.destroy();
+    };
+    draw('player_arrow_p1', 0x3b82f6, 0xffffff);
+    draw('player_arrow_p2', 0xe94560, 0xffffff);
   }
 
   /** Multi-frame procedural textures for ground fire / toxic hazards (`GroundHazard`). */
@@ -217,6 +242,7 @@ export class FightScene extends Phaser.Scene {
 
     this.ensureSpecialTextures();
     this.ensureHazardTextures();
+    this.ensurePlayerArrowTextures();
 
     this.fighter1 = new Fighter(this, p1X, floorY, def1, 1);
     const cpuDmg =
@@ -224,6 +250,13 @@ export class FightScene extends Phaser.Scene {
     this.fighter2 = new Fighter(this, p2X, floorY, def2, 2, cpuDmg);
     this.fighter1.setDepth(10);
     this.fighter2.setDepth(10);
+
+    this.playerArrow1 = this.add.image(0, 0, 'player_arrow_p1');
+    this.playerArrow2 = this.add.image(0, 0, 'player_arrow_p2');
+    this.playerArrow1.setOrigin(0.5, 1);
+    this.playerArrow2.setOrigin(0.5, 1);
+    this.playerArrow1.setDepth(15);
+    this.playerArrow2.setDepth(15);
 
     this.input1 = new InputManager(this, 1);
     if (this.vsCpu) {
@@ -321,6 +354,17 @@ export class FightScene extends Phaser.Scene {
     }
     g.lineStyle(2, 0xe94560, 0.2);
     g.lineBetween(0, platformTopY, width, platformTopY);
+  }
+
+  private syncPlayerArrow(fighter: Fighter, arrow: Phaser.GameObjects.Image): void {
+    if (fighter.state === 'ko') {
+      arrow.setVisible(false);
+      return;
+    }
+    arrow.setVisible(true);
+    const b = fighter.getBounds();
+    const bob = Math.sin(this.time.now / 260) * 2.5;
+    arrow.setPosition(b.centerX, b.top - 6 + bob);
   }
 
   private drawHealthBars(def1: CharacterDefinition, def2: CharacterDefinition): void {
@@ -459,6 +503,9 @@ export class FightScene extends Phaser.Scene {
 
     this.fighter1.update(this.time.now, dir1);
     this.fighter2.update(this.time.now, dir2);
+
+    this.syncPlayerArrow(this.fighter1, this.playerArrow1);
+    this.syncPlayerArrow(this.fighter2, this.playerArrow2);
 
     this.physicsMgr.checkHits(this.fighter1, this.fighter2);
     this.physicsMgr.checkHits(this.fighter2, this.fighter1);

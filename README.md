@@ -7,13 +7,13 @@ Zenith Fighters is a browser-based 2D arcade fighting game: one or two players o
 - **Stack**: Phaser 3, TypeScript, Vite, ESLint. The app is a single client bundle: game code under `src/game/`, static assets under `public/`.
 - **Flow**: Boot (asset preload) → main menu → character select → fight → victory → main menu.
 - **More detail**: `Changelog.md` for release history. `.cursor/notes/` holds short internal notes for contributors. CPU logic: `src/game/systems/CpuController.ts`.
-- **CI / deployment**: No pipeline configs or hosted demo URL in this repo; run locally or serve the `dist/` output from `npm run build`.
+- **CI / deployment**: `.github/workflows/deploy-pages.yml` builds with Vite and deploys `dist/` to **GitHub Pages** on pushes to `main` (and manual workflow run). In the repo, set **Settings → Pages → Build and deployment** source to **GitHub Actions**.
 
 ## Usage
 
 ### Deployed stages
 
-None are defined here. Use local development below or host `dist/` yourself.
+After the workflow runs successfully, the game is served from GitHub Pages (project site), typically `https://<your-github-user-or-org>.github.io/ZenithFighters/`. Use local development below for day-to-day work.
 
 ### Local development
 
