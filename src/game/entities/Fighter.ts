@@ -23,6 +23,9 @@ export class Fighter extends Phaser.GameObjects.Sprite {
   private hbW = 30;
   private hbH = 25;
   private hbTopOffset = 50;
+  /** Wall-clock start of current punch/kick; avoids cancelling same-frame before Phaser marks the anim playing. */
+  private meleeStartedAt = 0;
+  private static readonly MELEE_MIN_MS = 48;
   /** Multiplier for all outgoing melee / special damage (e.g. hard CPU). */
   private readonly damageMultiplier: number;
 
@@ -221,12 +224,23 @@ export class Fighter extends Phaser.GameObjects.Sprite {
     }
 
     if (this.state === 'punch' || this.state === 'kick') {
-      if (!this.anims.isPlaying) {
+      const prefix = this.characterDef.spritePrefix;
+      const expectedKey = `${prefix}_${this.state}`;
+      const cur = this.anims.currentAnim;
+      const matches = cur?.key === expectedKey;
+      const playingExpected = this.anims.isPlaying && matches;
+      const pastMin = time >= this.meleeStartedAt + Fighter.MELEE_MIN_MS;
+
+      if (playingExpected || !pastMin) {
+        this.hitboxActive = true;
+      } else if (matches && !this.anims.isPlaying) {
         this.state = 'idle';
         this.hitboxActive = false;
         this.playAnim('idle');
-      } else {
-        this.hitboxActive = true;
+      } else if (!matches) {
+        this.state = 'idle';
+        this.hitboxActive = false;
+        this.playAnim('idle');
       }
       return;
     }
@@ -260,6 +274,7 @@ export class Fighter extends Phaser.GameObjects.Sprite {
 
   tryPunch(): boolean {
     if (this.state !== 'idle' && this.state !== 'walk') return false;
+    this.meleeStartedAt = this.scene.time.now;
     this.state = 'punch';
     this.hitboxActive = true;
     this.hitboxDamage = Math.max(1, Math.round(this.characterDef.punchDamage * this.damageMultiplier));
@@ -271,6 +286,7 @@ export class Fighter extends Phaser.GameObjects.Sprite {
 
   tryKick(): boolean {
     if (this.state !== 'idle' && this.state !== 'walk') return false;
+    this.meleeStartedAt = this.scene.time.now;
     this.state = 'kick';
     this.hitboxActive = true;
     this.hitboxDamage = Math.max(1, Math.round(this.characterDef.kickDamage * this.damageMultiplier));

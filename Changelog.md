@@ -9,10 +9,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - `README.md`: **Deployed stages** links to the live GitHub Pages build at [echsecutor.github.io/ZenithFighters](https://echsecutor.github.io/ZenithFighters/)
+- **VS CPU** (`CpuController`): walks in closer before stopping (`engageDx` ~68px), slightly wider perceived punch range for choosing melee, hard-mode chase/special distance tuned so the CPU commits from nearer
 
 ### Fixed
 
 - **GitHub Pages**: Kenney portraits, fight floor, and BGM failed to load because URLs were root-absolute (`/assets/...`); `assetPaths.ts` now prefixes `import.meta.env.BASE_URL` so `public/` files resolve under project Pages paths (`src/vite-env.d.ts` for Vite client types)
+- **Melee hits (incl. VS CPU)**: `Fighter` punch/kick no longer reset to idle on the same frame as `playAnim` when Phaser has not yet marked the animation playing, so hitboxes stay active long enough for `PhysicsManager.checkHits` to register damage
 
 ## [1.1.0] 2026-03-21
 

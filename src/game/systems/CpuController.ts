@@ -40,12 +40,14 @@ export class CpuController {
       this.retreatUntil = 0;
     }
 
+    /** Walk in until this separation (center-to-center); keeps CPU in reliable melee range despite collider separation. */
+    const engageDx = 68;
     if (now < this.retreatUntil) {
       x = dx > 0 ? -1 : 1;
     } else if (hard && oppHurt && onGround) {
-      if (absDx > 100) x = dx > 0 ? 1 : -1;
-      else if (absDx < 38) x = dx > 0 ? -1 : 1;
-    } else if (absDx > 95) {
+      if (absDx > 88) x = dx > 0 ? 1 : -1;
+      else if (absDx < 42) x = dx > 0 ? -1 : 1;
+    } else if (absDx > engageDx) {
       x = dx > 0 ? 1 : -1;
     } else if (!hard && absDx < 55 && onGround && Phaser.Math.Between(0, 180) === 0) {
       this.retreatUntil = now + Phaser.Math.Between(200, 450);
@@ -63,7 +65,7 @@ export class CpuController {
       self.isSpecialReady(now) &&
       onGround &&
       (self.state === 'idle' || self.state === 'walk') &&
-      absDx > 55 &&
+      absDx > 42 &&
       absDx < 460
     ) {
       special = true;
@@ -72,7 +74,7 @@ export class CpuController {
 
     const canAct =
       now >= this.nextActionTime && onGround && (self.state === 'idle' || self.state === 'walk');
-    const inPunchRange = absDx < 105;
+    const inPunchRange = absDx < 118;
 
     if (hard && oppHurt && canAct && inPunchRange) {
       const timeLeft = opponent.hurtUntil - now;
