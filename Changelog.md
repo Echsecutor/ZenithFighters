@@ -6,6 +6,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- VS CPU **easy** never fires **specials**; **hard** fires a special on the first eligible tick whenever it is off cooldown and roughly in mid range (no random gate), on top of existing hard pressure / damage scaling (`CpuController`)
+- Ground **fire** and **toxic** specials: **higher damage over time** (`damagePerTick` / `tickMs` in `src/game/data/characters.ts` for Brawler fire patch and Shambler toxic patch)
+- Ground hazards: **8-frame animated** procedural sprites and Phaser anims from `FightScene.ensureHazardTextures` (additive blend on fire); `GroundHazard` uses a scaled sprite instead of flat `Graphics` ellipses
+
+### Added
+
+- VS CPU **difficulty**: **easy** (melee/jump only, no specials) vs **hard** (higher outgoing damage, aggressive specials when ready, pressure during player **hurt** to chain hits). Character select: **H** or **P1 X** toggles easy/hard while VS CPU is on; `Fight` receives `cpuDifficulty`, `CpuController` takes `CpuDifficulty`, `Fighter` optional `damageMultiplier` for scaled melee/special damage
+- Site favicon (`public/favicon.ico`): head crop from the first frame of the player sprite sheet (`public/assets/characters/player.png`, 9×3 grid, 80×110px cells); linked from root `index.html`
+
+- Character select: gamepad support (pad 0 = P1 roster / **Y** = CPU toggle / **A** = start; pad 1 = P2 roster when two players; horizontal D-pad or left stick with edge detection + `POST_UPDATE` prev state, same pattern as `InputManager`)
+
+### Fixed
+
+- Character select: yellow **mode** line shared the same vertical band as **Player 1 / Player 2** labels (looked doubled / overlapping); header Y positions are now derived from the portrait row with extra gap, **mode** text uses word wrap + line spacing, and the bottom hint has clearer line spacing and inset from the screen edge (`CharacterSelectScene`)
+
+- Character select: fight-controls columns and the bottom CPU / difficulty / start hint sat in the same vertical band, so the last control rows (e.g. jump) drew on top of the footer; relayout with a higher controls block, bottom-aligned wrapped footer, and a two-line footer string (`CharacterSelectScene`)
+
+- Gamepad face buttons: `Phaser.Input.Gamepad.Button` has no `JustDown` (it is button index constants); `InputManager` now treats “just pressed” as `pressed && !previous`, with previous state updated each frame in `POST_UPDATE`
+- Gamepad A/B/X/Y: Phaser exposes them as **booleans** on `Gamepad`, not `{ pressed }` objects; reading `.pressed` always failed, and `if (pad?.A)` skipped the gamepad path whenever A was released — fixed via `faceDown()` and `if (pad)` for actions
+
+- Per-character **special attacks** (see `special` + `SpecialSpawnRequest` in `src/game/data/characters.ts`): Brawler **ground fire** patch (tick damage), Striker **boomerang** (outbound + weaker return hit), Scout **ice ball** projectile, Vanguard fast **burst round**, Shambler **toxic ground** patch; procedural textures `special_ice`, `special_boomerang`, `special_slug` in `FightScene.ensureSpecialTextures`; `GroundHazard`, `BoomerangProjectile`, `Fighter.applyDotDamage` for hazards; **5s** cooldown; HUD + **E** / **U** / gamepad **Y**; **hard** VS CPU uses specials whenever ready (easy CPU does not)
+- Character select: **C** toggles **VS CPU**; CPU opponent uses the right-slot fighter; `Fight` receives `vsCpu` and drives P2 with `CpuController` (approach, retreat, punch/kick/jump with cooldowns)
+- `CpuController` in `src/game/systems/CpuController.ts` for arcade-style CPU opponent
+
 ## [1.0.0] 2026-03-21
 
 

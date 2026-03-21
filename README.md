@@ -1,12 +1,12 @@
 # Zenith Fighters
 
-Zenith Fighters is a browser-based 2D arcade fighting game: two players on one machine use keyboards and/or gamepads, choose fighters from a Kenney-derived roster, then battle on a neon-style arena with health bars, hit reactions, and a victory screen. AI and online multiplayer are not implemented.
+Zenith Fighters is a browser-based 2D arcade fighting game: one or two players on one machine use keyboards and/or gamepads, choose fighters from a Kenney-derived roster, then battle on a neon-style arena with health bars, hit reactions, and a victory screen. You can fight a CPU opponent from character select (**C** to toggle); with VS CPU on, **H** or **P1 X** switches **easy** vs **hard** CPU. Online multiplayer is not implemented.
 
 ## Repository overview
 
 - **Stack**: Phaser 3, TypeScript, Vite, ESLint. The app is a single client bundle: game code under `src/game/`, static assets under `public/`.
 - **Flow**: Boot (asset preload) → main menu → character select → fight → victory → main menu.
-- **More detail**: `Changelog.md` for release history. `.cursor/notes/` holds short internal notes for contributors.
+- **More detail**: `Changelog.md` for release history. `.cursor/notes/` holds short internal notes for contributors. CPU logic: `src/game/systems/CpuController.ts`.
 - **CI / deployment**: No pipeline configs or hosted demo URL in this repo; run locally or serve the `dist/` output from `npm run build`.
 
 ## Usage
@@ -48,15 +48,20 @@ npm run lint
 
 **Character select**
 
-- **Player 1** — `A` / `D` cycle the roster
-- **Player 2** — `←` / `→` cycle the roster
+- **Player 1** — `A` / `D` or gamepad 1 D-pad / left stick horizontal: cycle the roster
+- **Player 2 / CPU fighter** — `←` / `→` or gamepad 2 stick: cycle the right slot (human P2 or CPU fighter)
+- **C** or **Y** on gamepad 1 — toggle **VS CPU** vs local two-player fight
+- **H** or **X** on gamepad 1 — while VS CPU is on, cycle CPU **easy** / **hard**
+- **SPACE** or **A** on either gamepad — start fight
 
 **Fight (keyboard)**
 
-- **Player 1** — `W` `A` `S` `D` move; `R` punch; `F` kick; `W` jump
-- **Player 2** — arrows move; `O` punch; `L` kick; `↑` jump
+- **Player 1** — `W` `A` `S` `D` move; `R` punch; `F` kick; `E` special (5s cooldown); `W` jump
+- **Player 2** — arrows move; `O` punch; `L` kick; `U` special (5s cooldown); `↑` jump
 
-**Fight (gamepad)** — Player 1 uses pad 0, player 2 pad 1: left stick to move, **A** punch, **B** kick, **X** jump (see `src/game/systems/InputManager.ts`).
+**Fight (gamepad)** — Player 1 uses pad 0, player 2 pad 1: left stick to move, **A** punch, **B** kick, **X** jump, **Y** special (see `src/game/systems/InputManager.ts`). Special readiness appears next to each health bar during the fight.
+
+Specials differ per character (ground fire, boomerang, ice ball, fast slug, toxic pool); definitions live in `src/game/data/characters.ts`.
 
 ## Project layout
 
@@ -64,7 +69,7 @@ npm run lint
 - `src/game/main.ts`, `src/game/config.ts` — Phaser bootstrap and config
 - `src/game/scenes/` — Boot, MainMenu, CharacterSelect, Fight, Victory
 - `src/game/entities/` — `Fighter`
-- `src/game/systems/` — `InputManager`, `PhysicsManager`
+- `src/game/systems/` — `InputManager`, `PhysicsManager`, `CpuController`
 - `src/game/data/` — character definitions, asset paths
 - `public/assets/` — sprites, audio, backgrounds (vendored; see Acknowledgements)
 
@@ -72,7 +77,8 @@ npm run lint
 
 - **Platformer Characters 1** by [Kenney](https://kenney.nl) (Kenney.nl)  
   CC0 (Public Domain). Character sprites.  
-  [OpenGameArt](https://opengameart.org/content/platformer-characters-1-5-characters) · [Kenney.nl](https://kenney.nl/assets/platformer-characters)
+  [OpenGameArt](https://opengameart.org/content/platformer-characters-1-5-characters) · [Kenney.nl](https://kenney.nl/assets/platformer-characters)  
+  The site favicon (`public/favicon.ico`) is a square head crop from the first cell of `public/assets/characters/player.png`.
 
 - **Arcade Floor Neon** by Fupi  
   CC0 (Public Domain). Tiled neon carpet texture for the fight floor.  

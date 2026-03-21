@@ -1,7 +1,11 @@
 import Phaser from 'phaser';
-import type { CharacterDefinition } from '../data/characters';
+import {
+  SPECIAL_COOLDOWN_MS,
+  type CharacterDefinition,
+  type SpecialSpawnRequest,
+} from '../data/characters';
 
-export type FighterState = 'idle' | 'walk' | 'jump' | 'punch' | 'kick' | 'hurt' | 'ko';
+export type FighterState = 'idle' | 'walk' | 'jump' | 'punch' | 'kick' | 'hurt' | 'ko' | 'special';
 
 export class Fighter extends Phaser.GameObjects.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
@@ -14,6 +18,13 @@ export class Fighter extends Phaser.GameObjects.Sprite {
   hitboxActive: boolean = false;
   hitboxDamage: number = 0;
   hitboxOffsetX: number = 0;
+  specialCooldownUntil: number = 0;
+  private specialTag: 'pose' | null = null;
+  private hbW = 30;
+  private hbH = 25;
+  private hbTopOffset = 50;
+  /** Multiplier for all outgoing melee / special damage (e.g. hard CPU). */
+  private readonly damageMultiplier: number;
 
   constructor(
     scene: Phaser.Scene,
@@ -21,18 +32,18 @@ export class Fighter extends Phaser.GameObjects.Sprite {
     y: number,
     characterDef: CharacterDefinition,
     playerIndex: 1 | 2,
+    damageMultiplier: number = 1,
   ) {
     const prefix = characterDef.spritePrefix;
     super(scene, x, y, `${prefix}_idle`);
     this.characterDef = characterDef;
     this.playerIndex = playerIndex;
+    this.damageMultiplier = damageMultiplier;
     this.hp = characterDef.hp;
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.body.setCollideWorldBounds(true);
 
-    // Kenney poses have transparent padding under the feet. Origin at texture
-    // bottom makes the body sit on the floor while sprites look sunk into it.
     const fw = this.frame.width;
     const fh = this.frame.height;
     const footInset = Math.round(fh * 0.08);
@@ -54,11 +65,29 @@ export class Fighter extends Phaser.GameObjects.Sprite {
     this.play(`${prefix}_${key}`);
   }
 
+  private setDefaultHitboxDims(): void {
+    this.hbW = 30;
+    this.hbH = 25;
+    this.hbTopOffset = 50;
+  }
+
+  /** Damage from hazards / DOT without entering hurt stun. */
+  applyDotDamage(damage: number): void {
+    if (this.state === 'ko') return;
+    this.hp = Math.max(0, this.hp - damage);
+    if (this.hp <= 0) {
+      this.state = 'ko';
+      this.body.setVelocity(0, 0);
+    }
+  }
+
   takeDamage(damage: number, knockbackX: number): void {
     if (this.state === 'ko') return;
     this.hp = Math.max(0, this.hp - damage);
     this.state = 'hurt';
     this.hurtUntil = this.scene.time.now + 400;
+    this.specialTag = null;
+    this.hitboxActive = false;
     this.playAnim('hurt');
     this.body.setVelocity(knockbackX, 0);
     if (this.hp <= 0) {
@@ -69,20 +98,105 @@ export class Fighter extends Phaser.GameObjects.Sprite {
 
   getHitbox(): Phaser.Geom.Rectangle | null {
     if (!this.hitboxActive || this.state === 'ko') return null;
-    const w = 30;
-    const h = 25;
     const dir = this.facingRight ? 1 : -1;
-    const x = this.x + this.hitboxOffsetX * dir;
-    return new Phaser.Geom.Rectangle(x - w / 2, this.y - 50, w, h);
+    const cx = this.x + this.hitboxOffsetX * dir;
+    const top = this.y - this.hbTopOffset;
+    return new Phaser.Geom.Rectangle(cx - this.hbW / 2, top, this.hbW, this.hbH);
   }
 
   getHurtbox(): Phaser.Geom.Rectangle {
-    return new Phaser.Geom.Rectangle(
-      this.x - 25,
-      this.y - 60,
-      50,
-      60,
-    );
+    return new Phaser.Geom.Rectangle(this.x - 25, this.y - 60, 50, 60);
+  }
+
+  isSpecialReady(time: number): boolean {
+    return time >= this.specialCooldownUntil;
+  }
+
+  /**
+   * Starts special: short punch pose; scene consumes returned payload to spawn projectiles / hazards.
+   */
+  trySpecial(now: number, _opponent: Fighter, _worldWidth: number): SpecialSpawnRequest | null {
+    if (now < this.specialCooldownUntil) return null;
+    if (this.state !== 'idle' && this.state !== 'walk') return null;
+
+    const sp = this.characterDef.special;
+    this.specialCooldownUntil = now + SPECIAL_COOLDOWN_MS;
+    this.state = 'special';
+    this.specialTag = 'pose';
+    this.hitboxActive = false;
+    this.playAnim('punch');
+
+    const dir = this.facingRight ? 1 : -1;
+
+    const dm = this.damageMultiplier;
+
+    if (sp.kind === 'iceBall') {
+      return {
+        type: 'straight',
+        textureKey: 'special_ice',
+        x: this.x + dir * 38,
+        y: this.y - 38,
+        vx: dir * sp.speed,
+        damage: Math.max(1, Math.round(sp.damage * dm)),
+        owner: this.playerIndex,
+      };
+    }
+
+    if (sp.kind === 'burstRound') {
+      return {
+        type: 'straight',
+        textureKey: 'special_slug',
+        x: this.x + dir * 36,
+        y: this.y - 36,
+        vx: dir * sp.speed,
+        damage: Math.max(1, Math.round(sp.damage * dm)),
+        owner: this.playerIndex,
+      };
+    }
+
+    if (sp.kind === 'boomerang') {
+      return {
+        type: 'boomerang',
+        textureKey: 'special_boomerang',
+        x: this.x + dir * 34,
+        y: this.y - 40,
+        vx: dir * sp.speed,
+        maxDistance: sp.maxDistance,
+        outboundDamage: Math.max(1, Math.round(sp.outboundDamage * dm)),
+        returnDamage: Math.max(1, Math.round(sp.returnDamage * dm)),
+        owner: this.playerIndex,
+      };
+    }
+
+    if (sp.kind === 'firePatch') {
+      return {
+        type: 'groundHazard',
+        x: this.x + dir * sp.placeOffsetX,
+        y: this.y,
+        owner: this.playerIndex,
+        damagePerTick: Math.max(1, Math.round(sp.damagePerTick * dm)),
+        tickMs: sp.tickMs,
+        durationMs: sp.durationMs,
+        halfWidth: sp.halfWidth,
+        visual: 'fire',
+      };
+    }
+
+    if (sp.kind === 'toxicPatch') {
+      return {
+        type: 'groundHazard',
+        x: this.x + dir * sp.placeOffsetX,
+        y: this.y,
+        owner: this.playerIndex,
+        damagePerTick: Math.max(1, Math.round(sp.damagePerTick * dm)),
+        tickMs: sp.tickMs,
+        durationMs: sp.durationMs,
+        halfWidth: sp.halfWidth,
+        visual: 'toxic',
+      };
+    }
+
+    return null;
   }
 
   update(time: number, input: { x: number; y: number }): void {
@@ -92,6 +206,15 @@ export class Fighter extends Phaser.GameObjects.Sprite {
       if (time >= this.hurtUntil) {
         this.state = this.hp > 0 ? 'idle' : 'ko';
         this.body.setVelocity(0, 0);
+        this.playAnim('idle');
+      }
+      return;
+    }
+
+    if (this.state === 'special' && this.specialTag === 'pose') {
+      if (!this.anims.isPlaying) {
+        this.state = 'idle';
+        this.specialTag = null;
         this.playAnim('idle');
       }
       return;
@@ -139,8 +262,9 @@ export class Fighter extends Phaser.GameObjects.Sprite {
     if (this.state !== 'idle' && this.state !== 'walk') return false;
     this.state = 'punch';
     this.hitboxActive = true;
-    this.hitboxDamage = this.characterDef.punchDamage;
+    this.hitboxDamage = Math.max(1, Math.round(this.characterDef.punchDamage * this.damageMultiplier));
     this.hitboxOffsetX = 25;
+    this.setDefaultHitboxDims();
     this.playAnim('punch');
     return true;
   }
@@ -149,8 +273,9 @@ export class Fighter extends Phaser.GameObjects.Sprite {
     if (this.state !== 'idle' && this.state !== 'walk') return false;
     this.state = 'kick';
     this.hitboxActive = true;
-    this.hitboxDamage = this.characterDef.kickDamage;
+    this.hitboxDamage = Math.max(1, Math.round(this.characterDef.kickDamage * this.damageMultiplier));
     this.hitboxOffsetX = 30;
+    this.setDefaultHitboxDims();
     this.playAnim('kick');
     return true;
   }

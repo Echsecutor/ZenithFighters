@@ -13,14 +13,14 @@ See [project-overview.md](project-overview.md) for tech stack, architecture, and
 |-------|------|-------------|
 | Project structure, tech stack, architecture | [project-overview.md](project-overview.md) | High-level overview of the codebase |
 | Terminal commands to avoid | [terminal-avoid.md](terminal-avoid.md) | PowerShell/System.Drawing crash; use hardcoded asset dims instead |
-| Assets (Kenney, paths) | [assets.md](assets.md) | CC0 characters, individual PNGs, assetPaths.ts |
+| Assets (Kenney, paths, favicon, hazard VFX refs) | [assets.md](assets.md) | CC0 characters, `assetPaths.ts`, favicon; optional OGA/Kenney sources for fire/toxic ground art |
 
 ## Folder Structure
 
 ```
 ZenithFighters/
   .cursor/notes/       - AI notes (this folder)
-  public/              - Static assets
+  public/              - Static assets (incl. favicon.ico)
     assets/            - Characters, UI, audio, backgrounds
   src/
     main.ts            - Entry point
@@ -29,7 +29,7 @@ ZenithFighters/
       main.ts         - Game creation
       scenes/         - Boot, MainMenu, CharacterSelect, Fight, Victory
       entities/       - Fighter
-      systems/        - InputManager, PhysicsManager
+      systems/        - InputManager, PhysicsManager, CpuController; specials (see `characters.ts`, `SpecialProjectile`, `BoomerangProjectile`, `GroundHazard`)
       data/           - Character definitions, assetPaths
 ```
 
