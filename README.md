@@ -1,3 +1,5 @@
+[![Deploy to GitHub Pages](https://github.com/Echsecutor/ZenithFighters/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/Echsecutor/ZenithFighters/actions/workflows/deploy-pages.yml)
+
 # Zenith Fighters
 
 Zenith Fighters is a browser-based 2D arcade fighting game: one or two players on one machine use keyboards and/or gamepads, choose fighters from a Kenney-derived roster, then battle on a neon-style arena with health bars, hit reactions, and a victory screen. You can fight a CPU opponent from character select (**C** to toggle); with VS CPU on, **H** or **P1 X** switches **easy** vs **hard** CPU. Online multiplayer is not implemented.
