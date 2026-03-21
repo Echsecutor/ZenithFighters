@@ -10,7 +10,7 @@
 - **Location**: `public/assets/kenney_extracted/PNG/`
 - **Characters**: Player, Female, Adventurer, Soldier, Zombie (all in `CHARACTERS` / `KENNEY_CHARACTER_POSES`)
 - **Format**: Individual pose PNGs (no tilesheet parsing; see [terminal-avoid.md](terminal-avoid.md))
-- **Paths**: `assetPaths.ts` — BootScene loads per `spritePrefix` (PNGs committed under `public/assets/`)
+- **Paths**: `assetPaths.ts` — BootScene loads per `spritePrefix` (PNGs under `public/assets/`); URLs use `publicUrl()` + `import.meta.env.BASE_URL` so Phaser requests work on GitHub Pages subpaths
 
 ## Fight scene
 

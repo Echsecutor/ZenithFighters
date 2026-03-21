@@ -2,13 +2,24 @@
  * Asset paths for Kenney platformer characters (CC0, OpenGameArt).
  * Uses individual pose PNGs - no tilesheet parsing.
  */
-const KENNEY_BASE = '/assets/kenney_extracted/PNG';
+
+/** Resolves a path under `public/` for Phaser `load.image` / `load.audio` (GitHub Pages subpath + `base: './'`). */
+function publicUrl(pathFromPublic: string): string {
+  const rel = pathFromPublic.replace(/^\/+/, '');
+  const base = import.meta.env.BASE_URL;
+  return base.endsWith('/') ? `${base}${rel}` : `${base}/${rel}`;
+}
+
+const KENNEY_BASE = publicUrl('assets/kenney_extracted/PNG');
 
 /** Fight scene: floor texture (`public/assets/backgrounds/`, vendored in repo). */
 export const SCENE_ASSETS = {
-  arcadeFloor: '/assets/backgrounds/arcade_floor.png',
+  arcadeFloor: publicUrl('assets/backgrounds/arcade_floor.png'),
   /** MP3 first (Safari/iOS), Ogg Opus fallback. */
-  fightBgm: ['/assets/audio/crimsonVoltageRising.mp3', '/assets/audio/crimsonVoltageRising.ogg'],
+  fightBgm: [
+    publicUrl('assets/audio/crimsonVoltageRising.mp3'),
+    publicUrl('assets/audio/crimsonVoltageRising.ogg'),
+  ],
 } as const;
 
 /** Pose file keys → used as texture suffix `${prefix}_${key}` in BootScene. */

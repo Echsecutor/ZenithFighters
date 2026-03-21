@@ -26,9 +26,10 @@ Key modules:
 
 ## CI / GitHub Pages
 
+- Live build: `https://echsecutor.github.io/ZenithFighters/` (see root `README.md` **Deployed stages**)
 - Workflow: `.github/workflows/deploy-pages.yml` — Ubuntu, Node 20, `npm ci` + `npm run build`, `actions/upload-pages-artifact` + `actions/deploy-pages` on `push` to `main` and `workflow_dispatch`
 - **Settings → Pages**: source must be **GitHub Actions** (not “Deploy from a branch”)
-- Production `base` is `./` in `vite.config.ts` so asset URLs work on a project Pages path (`/RepoName/`)
+- Production `base` is `./` in `vite.config.ts`; Phaser loads in `assetPaths.ts` use `import.meta.env.BASE_URL` via `publicUrl()` so `public/` files are not requested as domain-root `/assets/...` (which breaks on `github.io/RepoName/`)
 
 ## Key Decisions
 

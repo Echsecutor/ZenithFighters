@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- `README.md`: **Deployed stages** links to the live GitHub Pages build at [echsecutor.github.io/ZenithFighters](https://echsecutor.github.io/ZenithFighters/)
+
+### Fixed
+
+- **GitHub Pages**: Kenney portraits, fight floor, and BGM failed to load because URLs were root-absolute (`/assets/...`); `assetPaths.ts` now prefixes `import.meta.env.BASE_URL` so `public/` files resolve under project Pages paths (`src/vite-env.d.ts` for Vite client types)
+
 ## [1.1.0] 2026-03-21
 
 ### Added

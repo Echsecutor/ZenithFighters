@@ -13,7 +13,7 @@ Zenith Fighters is a browser-based 2D arcade fighting game: one or two players o
 
 ### Deployed stages
 
-After the workflow runs successfully, the game is served from GitHub Pages (project site), typically `https://<your-github-user-or-org>.github.io/ZenithFighters/`. Use local development below for day-to-day work.
+**Play online:** [Zenith Fighters on GitHub Pages](https://echsecutor.github.io/ZenithFighters/) (deployed from `main` via `.github/workflows/deploy-pages.yml`). For local work, use **Local development** below.
 
 ### Local development
 
