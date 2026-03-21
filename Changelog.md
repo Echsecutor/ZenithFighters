@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.0] 2026-03-21
+
+
 ### Added
 
 - Fight scene: looping background music (`crimsonVoltageRising` as MP3 + Ogg Opus under `public/assets/audio/`); stops when the fight scene shuts down (e.g. victory)
