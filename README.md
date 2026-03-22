@@ -57,7 +57,7 @@ npm run lint
 - **H** or **X** on gamepad 1 — while VS CPU / Adventure, cycle CPU **easy** / **hard**
 - **SPACE** or **A** on either gamepad — start fight
 
-**Adventure** (character select): only player 1 picks a fighter; each opponent is random. Your **health carries over** between wins (new CPU is always at full health). If you **lose a life** against the same CPU, **your health refills** but the **CPU keeps its remaining health**. After **game over**, type a name in the box (fight keys no longer go to Phaser) or use **gamepad**: **←** / **→** (or stick) to choose a character, **A** to add it, **B** backspace, **X** to save; then **SPACE** or **A** for the main menu.
+**Adventure** (character select): only player 1 picks a fighter; each opponent is random. Your **health carries over** between wins (new CPU is always at full health). If you **lose a life** against the same CPU, **your health refills** but the **CPU keeps its remaining health**. After **game over**, type a name in the box (Phaser **disables global key capture** so fight bindings type normally) or use **gamepad**: **←** / **→** (or stick), **A** add, **B** backspace, **X** save; then **SPACE** or **A** for the main menu.
 
 **Fight (keyboard)**
 

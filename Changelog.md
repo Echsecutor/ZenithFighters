@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.2.0] 2016-03-22
 
 ### Added
 
@@ -16,11 +16,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - **Adventure**: after beating the CPU, the next round keeps **player 1’s current HP** (no full heal between wins); losing a life and retrying the same opponent still **refills player 1** but keeps the **CPU’s current HP** via `adventureCpuHp`
-- **Adventure game over**: Phaser **keyboard is disabled** while the name field is focused so fight bindings (WASD, arrows, etc.) reach the browser input; **gamepad** can build a name with **←/→** (or stick) to pick a character, **A** append, **B** backspace, **X** save; after the leaderboard, **SPACE** or **A** returns to the main menu
+- **Adventure game over**: Phaser **keyboard plugin disabled** plus **`disableGlobalCapture()`** during name entry so fight keys registered via `addKey` (default capture) no longer get `preventDefault` and **WASD / arrows / fight keys type normally** in the DOM field; **gamepad** hint text shortened (**←/→ · A add · B delete · X save**); **`enableGlobalCapture()`** when leaving the screen
 - `README.md`: **Deployed stages** links to the live GitHub Pages build at [echsecutor.github.io/ZenithFighters](https://echsecutor.github.io/ZenithFighters/)
 - **VS CPU** (`CpuController`): walks in closer before stopping (`engageDx` ~68px), slightly wider perceived punch range for choosing melee, hard-mode chase/special distance tuned so the CPU commits from nearer
 
 ### Fixed
+
+- **Adventure leaderboard name field**: fight hotkeys failed in the HTML input because Phaser **key capture** blocked the browser; fixed by toggling global capture (see **Changed** above)
 
 - **Blink** hurt pose: replaced Kenney `character_robot_hurt.png` (face has no eye) with `character_robot_hit.png` as `robot_hurt.png` so the cyclops eye stays visible when damaged
 

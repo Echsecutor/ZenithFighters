@@ -32,8 +32,10 @@ export class AdventureGameOverScene extends Phaser.Scene {
     this.phase = 'name';
     this.wheelIndex = 0;
 
-    if (this.input.keyboard) {
-      this.input.keyboard.enabled = false;
+    const kbPlugin = this.input.keyboard;
+    if (kbPlugin) {
+      kbPlugin.disableGlobalCapture();
+      kbPlugin.enabled = false;
     }
 
     this.add.rectangle(width / 2, height / 2, width, height, 0x0a0a14, 0.92).setDepth(200);
@@ -76,7 +78,7 @@ export class AdventureGameOverScene extends Phaser.Scene {
       .text(
         width / 2,
         height * 0.8,
-        'Gamepad: ← / → pick character · A add · B delete · X save',
+        'Gamepad: ← / → · A add · B delete · X save',
         { fontSize: '15px', color: '#888888', align: 'center' },
       )
       .setOrigin(0.5)
@@ -259,8 +261,10 @@ export class AdventureGameOverScene extends Phaser.Scene {
   }
 
   private restoreKeyboard(): void {
-    if (this.input.keyboard) {
-      this.input.keyboard.enabled = true;
+    const kbPlugin = this.input.keyboard;
+    if (kbPlugin) {
+      kbPlugin.enabled = true;
+      kbPlugin.enableGlobalCapture();
     }
   }
 
