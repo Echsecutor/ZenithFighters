@@ -13,6 +13,7 @@ body {
 }
 
 #game-container {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -22,4 +23,106 @@ body {
   display: block;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+}
+
+/* Adventure game-over name entry (DOM overlay on #game-container) */
+.adventure-gameover-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  z-index: 10;
+}
+
+.adventure-gameover-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 28px;
+  min-width: min(360px, 92vw);
+  background: rgba(26, 26, 46, 0.96);
+  border: 2px solid #e94560;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+.adventure-gameover-input {
+  width: 100%;
+  max-width: 280px;
+  padding: 10px 12px;
+  font-size: 18px;
+  font-family: system-ui, sans-serif;
+  color: #1a1a2e;
+  border: 1px solid #4ecca3;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.adventure-gameover-submit {
+  padding: 10px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #0f0f0f;
+  background: #4ecca3;
+  border: none;
+  border-radius: 4px;
+}
+
+.adventure-gameover-submit:hover {
+  filter: brightness(1.08);
+}
+
+.adventure-gameover-board-title {
+  margin: 0 0 10px;
+  font-size: 18px;
+  color: #e94560;
+  text-align: center;
+}
+
+.adventure-gameover-leaderboard {
+  width: 100%;
+  max-height: min(240px, 40vh);
+  overflow-y: auto;
+  text-align: left;
+}
+
+.adventure-gameover-row {
+  display: grid;
+  grid-template-columns: 2rem 1fr auto;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 15px;
+  color: #e8e8e8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.adventure-gameover-rank {
+  color: #888;
+}
+
+.adventure-gameover-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adventure-gameover-score {
+  color: #c9b458;
+  white-space: nowrap;
+}
+
+.adventure-gameover-empty {
+  margin: 0;
+  color: #888;
+  font-size: 14px;
+}
+
+.adventure-gameover-hint {
+  margin: 0;
+  font-size: 14px;
+  color: #a0a0a0;
+  text-align: center;
 }

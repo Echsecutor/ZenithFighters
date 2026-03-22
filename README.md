@@ -2,12 +2,12 @@
 
 # Zenith Fighters
 
-Zenith Fighters is a browser-based 2D arcade fighting game: one or two players on one machine use keyboards and/or gamepads, choose fighters from a Kenney-derived roster, then battle on a neon-style arena with health bars, hit reactions, and a victory screen. You can fight a CPU opponent from character select (**C** to toggle); with VS CPU on, **H** or **P1 X** switches **easy** vs **hard** CPU. Online multiplayer is not implemented.
+Zenith Fighters is a browser-based 2D arcade fighting game: one or two players on one machine use keyboards and/or gamepads, choose fighters from a Kenney-derived roster, then battle on a neon-style arena with health bars, hit reactions, and a victory screen. The main menu offers **Versus** (one match) or **Adventure** (endless CPU rounds, limited lives, local high scores by wins). In Versus you can fight a CPU from character select (**C** to toggle); with VS CPU on, **H** or **P1 X** switches **easy** vs **hard** CPU. Online multiplayer is not implemented.
 
 ## Repository overview
 
 - **Stack**: Phaser 3, TypeScript, Vite, ESLint. The app is a single client bundle: game code under `src/game/`, static assets under `public/`.
-- **Flow**: Boot (asset preload) → main menu → character select → fight → victory → main menu.
+- **Flow**: Boot (asset preload) → main menu (mode) → character select → fight → victory **or** adventure game over → main menu.
 - **More detail**: `Changelog.md` for release history. `.cursor/notes/` holds short internal notes for contributors. CPU logic: `src/game/systems/CpuController.ts`.
 - **CI / deployment**: `.github/workflows/deploy-pages.yml` builds with Vite and deploys `dist/` to **GitHub Pages** on pushes to `main` (and manual workflow run). In the repo, set **Settings → Pages → Build and deployment** source to **GitHub Actions**.
 
@@ -46,15 +46,18 @@ npm run lint
 
 **Menus**
 
-- **SPACE** — main menu; start fight from character select; leave victory screen
+- **Main menu** — **↑** / **↓** or **W** / **S** (or gamepad up/down) to choose **Versus** or **Adventure**; **SPACE** or gamepad **A** to continue
+- **SPACE** — start fight from character select; leave victory screen; after saving an Adventure score, return to main menu
 
 **Character select**
 
 - **Player 1** — `A` / `D` or gamepad 1 D-pad / left stick horizontal: cycle the roster
 - **Player 2 / CPU fighter** — `←` / `→` or gamepad 2 stick: cycle the right slot (human P2 or CPU fighter)
-- **C** or **Y** on gamepad 1 — toggle **VS CPU** vs local two-player fight
-- **H** or **X** on gamepad 1 — while VS CPU is on, cycle CPU **easy** / **hard**
+- **C** or **Y** on gamepad 1 — toggle **VS CPU** vs local two-player (Versus only)
+- **H** or **X** on gamepad 1 — while VS CPU / Adventure, cycle CPU **easy** / **hard**
 - **SPACE** or **A** on either gamepad — start fight
+
+**Adventure** (character select): only player 1 picks a fighter; each opponent is random. Your **health carries over** between wins (new CPU is always at full health). If you **lose a life** against the same CPU, **your health refills** but the **CPU keeps its remaining health**. After **game over**, type a name in the box (fight keys no longer go to Phaser) or use **gamepad**: **←** / **→** (or stick) to choose a character, **A** to add it, **B** backspace, **X** to save; then **SPACE** or **A** for the main menu.
 
 **Fight (keyboard)**
 
@@ -63,13 +66,13 @@ npm run lint
 
 **Fight (gamepad)** — Player 1 uses pad 0, player 2 pad 1: left stick to move, **A** punch, **B** kick, **X** jump, **Y** special (see `src/game/systems/InputManager.ts`). Special readiness appears next to each health bar during the fight.
 
-Specials differ per character (ground fire, boomerang, ice ball, fast slug, toxic pool); definitions live in `src/game/data/characters.ts`.
+Specials differ per character (ground fire, boomerang, ice ball, fast slug, toxic pool, forward **teleport**); definitions live in `src/game/data/characters.ts`.
 
 ## Project layout
 
 - `src/main.ts` — Vite entry
 - `src/game/main.ts`, `src/game/config.ts` — Phaser bootstrap and config
-- `src/game/scenes/` — Boot, MainMenu, CharacterSelect, Fight, Victory
+- `src/game/scenes/` — Boot, MainMenu, CharacterSelect, Fight, Victory, AdventureGameOver
 - `src/game/entities/` — `Fighter`
 - `src/game/systems/` — `InputManager`, `PhysicsManager`, `CpuController`
 - `src/game/data/` — character definitions, asset paths
@@ -78,9 +81,13 @@ Specials differ per character (ground fire, boomerang, ice ball, fast slug, toxi
 ## Acknowledgements
 
 - **Platformer Characters 1** by [Kenney](https://kenney.nl) (Kenney.nl)  
-  CC0 (Public Domain). Character sprites.  
+  CC0 (Public Domain). Character sprites (Brawler, Striker, Scout, Vanguard, Shambler).  
   [OpenGameArt](https://opengameart.org/content/platformer-characters-1-5-characters) · [Kenney.nl](https://kenney.nl/assets/platformer-characters)  
   The site favicon (`public/favicon.ico`) is a square head crop from the first cell of `public/assets/characters/player.png`.
+
+- **Toon Characters 1** by [Kenney](https://kenney.nl) (Kenney.nl)  
+  CC0 (Public Domain). **Blink** (robot): individual pose PNGs under `public/assets/kenney_toon_extracted/PNG/Robot/Poses/`.  
+  [Kenney.nl — Toon Characters 1](https://kenney.nl/assets/toon-characters-1)
 
 - **Arcade Floor Neon** by Fupi  
   CC0 (Public Domain). Tiled neon carpet texture for the fight floor.  

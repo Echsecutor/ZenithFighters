@@ -37,6 +37,11 @@ export type SpecialSpawnRequest =
       durationMs: number;
       halfWidth: number;
       visual: 'fire' | 'toxic';
+    }
+  | {
+      type: 'teleport';
+      owner: 1 | 2;
+      deltaX: number;
     };
 
 export type SpecialAttackConfig =
@@ -64,7 +69,8 @@ export type SpecialAttackConfig =
       durationMs: number;
       halfWidth: number;
       placeOffsetX: number;
-    };
+    }
+  | { kind: 'teleport'; forwardDistance: number };
 
 export interface CharacterDefinition {
   id: string;
@@ -153,5 +159,16 @@ export const CHARACTERS: CharacterDefinition[] = [
       halfWidth: 52,
       placeOffsetX: 64,
     },
+  },
+  {
+    id: 'robot',
+    name: 'Blink',
+    spritePrefix: 'robot',
+    hp: 88,
+    walkSpeed: 188,
+    jumpForce: -430,
+    punchDamage: 7,
+    kickDamage: 14,
+    special: { kind: 'teleport', forwardDistance: 210 },
   },
 ];

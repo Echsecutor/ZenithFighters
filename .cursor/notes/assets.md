@@ -8,9 +8,15 @@
 
 - **Source**: [OpenGameArt — Platformer Characters 1](https://opengameart.org/content/platformer-characters-1-5-characters) (`kenney_platformerCharacters.zip`)
 - **Location**: `public/assets/kenney_extracted/PNG/`
-- **Characters**: Player, Female, Adventurer, Soldier, Zombie (all in `CHARACTERS` / `KENNEY_CHARACTER_POSES`)
+- **Characters**: Player, Female, Adventurer, Soldier, Zombie (in `CHARACTERS` / `KENNEY_CHARACTER_POSES`)
 - **Format**: Individual pose PNGs (no tilesheet parsing; see [terminal-avoid.md](terminal-avoid.md))
 - **Paths**: `assetPaths.ts` — BootScene loads per `spritePrefix` (PNGs under `public/assets/`); URLs use `publicUrl()` + `import.meta.env.BASE_URL` so Phaser requests work on GitHub Pages subpaths
+
+## Kenney Toon Characters 1 — Robot (CC0)
+
+- **Source**: [Kenney — Toon Characters 1](https://kenney.nl/assets/toon-characters-1) (`kenney_toon-characters-1.zip`)
+- **In repo**: `public/assets/kenney_toon_extracted/PNG/Robot/Poses/` — renamed poses (`robot_idle.png`, …) matching `KenneyPoseKey`; fighter **Blink** (`spritePrefix` `robot`) in `characters.ts`. **`robot_hurt.png`** uses Kenney’s **`character_robot_hit.png`** (the stock `character_robot_hurt.png` has no eye on the face).
+- **Paths**: `ROBOT_POSES` + `KENNEY_TOON_BASE` in `assetPaths.ts`
 
 ## Fight scene
 

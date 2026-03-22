@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
+import { ADVENTURE_START_LIVES, pickRandomCpuOpponent } from '../data/adventureConfig';
 import { CHARACTERS } from '../data/characters';
 import type { CpuDifficulty } from '../systems/CpuController';
+import type { MainMenuGameMode } from './MainMenuScene';
 
 /** Inset inside the stroke rect so sprites never touch the border. */
 const PORTRAIT_INSET = 10;
@@ -10,6 +12,7 @@ export class CharacterSelectScene extends Phaser.Scene {
   private p2Index = 1;
   private vsCpu = false;
   private cpuDifficulty: CpuDifficulty = 'easy';
+  private gameMode: MainMenuGameMode = 'versus';
   private modeLine!: Phaser.GameObjects.Text;
   private portrait1!: Phaser.GameObjects.Image;
   private portrait2!: Phaser.GameObjects.Image;
@@ -33,10 +36,15 @@ export class CharacterSelectScene extends Phaser.Scene {
     super({ key: 'CharacterSelect' });
   }
 
-  create(): void {
+  create(data?: { gameMode?: MainMenuGameMode }): void {
     const width = this.cameras.main.width;
     const height = this.cameras.main.height;
     const n = CHARACTERS.length;
+
+    this.gameMode = data?.gameMode === 'adventure' ? 'adventure' : 'versus';
+    if (this.gameMode === 'adventure') {
+      this.vsCpu = true;
+    }
 
     if (this.p1Index >= n) this.p1Index = 0;
     if (this.p2Index >= n) this.p2Index = Math.min(1, n - 1);
@@ -161,6 +169,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     const p2Prev = () => this.cycleP2(-1);
     const p2Next = () => this.cycleP2(1);
     const toggleCpu = () => {
+      if (this.gameMode === 'adventure') return;
       this.vsCpu = !this.vsCpu;
       this.refreshModeUi();
     };
@@ -270,7 +279,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     }
 
     if (p0) {
-      if (this.faceDown(p0, 'Y') && !this.prevSelectPad.p0.Y) {
+      if (this.gameMode !== 'adventure' && this.faceDown(p0, 'Y') && !this.prevSelectPad.p0.Y) {
         this.vsCpu = !this.vsCpu;
         this.refreshModeUi();
       }
@@ -280,7 +289,7 @@ export class CharacterSelectScene extends Phaser.Scene {
       }
     }
 
-    if (!this.vsCpu && p1) {
+    if (!this.vsCpu && this.gameMode !== 'adventure' && p1) {
       const h1 = this.menuHorizontal(p1);
       if (h1 !== 0 && h1 !== this.prevSelectPad.p1.h) {
         if (h1 < 0) this.cycleP2(-1);
@@ -294,13 +303,28 @@ export class CharacterSelectScene extends Phaser.Scene {
 
   private startFightFromSelect(): void {
     const c1 = CHARACTERS[this.p1Index];
+    if (c1 === undefined) return;
+    if (this.gameMode === 'adventure') {
+      const cpuId = pickRandomCpuOpponent(c1.id);
+      this.scene.start('Fight', {
+        player1Char: c1.id,
+        player2Char: cpuId,
+        vsCpu: true,
+        cpuDifficulty: this.cpuDifficulty,
+        gameMode: 'adventure',
+        adventureVictories: 0,
+        adventureLives: ADVENTURE_START_LIVES,
+      });
+      return;
+    }
     const c2 = CHARACTERS[this.p2Index];
-    if (c1 === undefined || c2 === undefined) return;
+    if (c2 === undefined) return;
     this.scene.start('Fight', {
       player1Char: c1.id,
       player2Char: c2.id,
       vsCpu: this.vsCpu,
       cpuDifficulty: this.vsCpu ? this.cpuDifficulty : undefined,
+      gameMode: 'versus',
     });
   }
 
@@ -310,24 +334,34 @@ export class CharacterSelectScene extends Phaser.Scene {
   }
 
   private cycleP2(delta: number): void {
+    if (this.gameMode === 'adventure') return;
     this.p2Index = (this.p2Index + delta + CHARACTERS.length) % CHARACTERS.length;
     this.refreshPortraits();
   }
 
   private refreshPortraits(): void {
     const c1 = CHARACTERS[this.p1Index];
-    const c2 = CHARACTERS[this.p2Index];
-    if (c1 === undefined || c2 === undefined) return;
+    if (c1 === undefined) return;
     this.portrait1.setTexture(`${c1.spritePrefix}_idle`);
-    this.portrait2.setTexture(`${c2.spritePrefix}_idle`);
     const frame = this.frame1;
     const innerW = frame.width - PORTRAIT_INSET * 2;
     const innerH = frame.height - PORTRAIT_INSET * 2;
     this.fitPortraitInBox(this.portrait1, innerW, innerH);
-    this.fitPortraitInBox(this.portrait2, innerW, innerH);
     this.name1.setText(c1.name);
-    this.name2.setText(c2.name);
-    this.matchup.setText(`${c1.name}  vs  ${c2.name}`);
+
+    if (this.gameMode === 'adventure') {
+      this.portrait2.setVisible(false);
+      this.name2.setText('?');
+      this.matchup.setText(`${c1.name}  vs  random CPU`);
+    } else {
+      const c2 = CHARACTERS[this.p2Index];
+      if (c2 === undefined) return;
+      this.portrait2.setVisible(true);
+      this.portrait2.setTexture(`${c2.spritePrefix}_idle`);
+      this.fitPortraitInBox(this.portrait2, innerW, innerH);
+      this.name2.setText(c2.name);
+      this.matchup.setText(`${c1.name}  vs  ${c2.name}`);
+    }
     this.refreshModeUi();
   }
 
@@ -348,6 +382,18 @@ export class CharacterSelectScene extends Phaser.Scene {
       'this fighter in',
       'the next fight.',
     ].join('\n');
+
+    if (this.gameMode === 'adventure') {
+      const tier = this.cpuDifficulty === 'hard' ? 'hard' : 'easy';
+      this.modeLine.setText(
+        `Adventure · VS CPU (${tier}) · ${ADVENTURE_START_LIVES} lives · win = next random foe`,
+      );
+      this.p2SlotLabel.setText('CPU (random)');
+      this.selectHint.setText('P1: A/D or stick — pick your fighter · H / P1 X: easy ↔ hard');
+      this.p2ControlsColumn.setText(cpuKeys);
+      this.bottomHint.setText('H or P1 X — easy/hard    ·    SPACE or A (any pad) — start');
+      return;
+    }
 
     if (this.vsCpu) {
       const tier = this.cpuDifficulty === 'hard' ? 'hard' : 'easy';

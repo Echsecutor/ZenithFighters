@@ -6,12 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Playable fighter **Blink** (`robot`): sprites from Kenney **Toon Characters 1**; special ability **teleport** — dashes forward in facing direction (clamped to arena), same global special cooldown as other fighters
+- **Main menu** mode selection: **Versus** (single match, same as before) vs **Adventure** (endless VS CPU gauntlet)
+- **Adventure mode**: same fight scene; beating the CPU spawns a **new random** opponent; **lives** (`ADVENTURE_START_LIVES` in `src/game/data/adventureConfig.ts`) drain on player loss; HUD shows wins and lives; **game over** scene with name entry and **local high scores** sorted by victory count (`localStorage` key `zenithfighters_adventure_highscores`, helpers in `src/game/data/adventureScores.ts`)
+- **`AdventureGameOverScene`**: DOM name field + leaderboard overlay (`public/style.css`); registered in `src/game/config.ts`
+
 ### Changed
 
+- **Adventure**: after beating the CPU, the next round keeps **player 1’s current HP** (no full heal between wins); losing a life and retrying the same opponent still **refills player 1** but keeps the **CPU’s current HP** via `adventureCpuHp`
+- **Adventure game over**: Phaser **keyboard is disabled** while the name field is focused so fight bindings (WASD, arrows, etc.) reach the browser input; **gamepad** can build a name with **←/→** (or stick) to pick a character, **A** append, **B** backspace, **X** save; after the leaderboard, **SPACE** or **A** returns to the main menu
 - `README.md`: **Deployed stages** links to the live GitHub Pages build at [echsecutor.github.io/ZenithFighters](https://echsecutor.github.io/ZenithFighters/)
 - **VS CPU** (`CpuController`): walks in closer before stopping (`engageDx` ~68px), slightly wider perceived punch range for choosing melee, hard-mode chase/special distance tuned so the CPU commits from nearer
 
 ### Fixed
+
+- **Blink** hurt pose: replaced Kenney `character_robot_hurt.png` (face has no eye) with `character_robot_hit.png` as `robot_hurt.png` so the cyclops eye stays visible when damaged
 
 - **GitHub Pages**: Kenney portraits, fight floor, and BGM failed to load because URLs were root-absolute (`/assets/...`); `assetPaths.ts` now prefixes `import.meta.env.BASE_URL` so `public/` files resolve under project Pages paths (`src/vite-env.d.ts` for Vite client types)
 - **Melee hits (incl. VS CPU)**: `Fighter` punch/kick no longer reset to idle on the same frame as `playAnim` when Phaser has not yet marked the animation playing, so hitboxes stay active long enough for `PhysicsManager.checkHits` to register damage

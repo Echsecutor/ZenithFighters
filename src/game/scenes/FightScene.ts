@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { ADVENTURE_START_LIVES, pickRandomCpuOpponent } from '../data/adventureConfig';
 import { BoomerangProjectile } from '../entities/BoomerangProjectile';
 import { Fighter } from '../entities/Fighter';
 import { GroundHazard } from '../entities/GroundHazard';
@@ -8,6 +9,8 @@ import { CpuController, type CpuDifficulty } from '../systems/CpuController';
 import { PhysicsManager } from '../systems/PhysicsManager';
 import { CHARACTERS, type CharacterDefinition, type SpecialSpawnRequest } from '../data/characters';
 import { SCENE_ASSETS } from '../data/assetPaths';
+
+export type FightGameMode = 'versus' | 'adventure';
 
 export class FightScene extends Phaser.Scene {
   private fighter1!: Fighter;
@@ -29,6 +32,9 @@ export class FightScene extends Phaser.Scene {
   private collidePlatform!: Phaser.Types.Physics.Arcade.GameObjectWithBody;
   private playerArrow1!: Phaser.GameObjects.Image;
   private playerArrow2!: Phaser.GameObjects.Image;
+  private gameMode: FightGameMode = 'versus';
+  private adventureVictories = 0;
+  private adventureLives = ADVENTURE_START_LIVES;
 
   /** Outgoing damage multiplier for P2 when VS CPU hard mode. */
   private static readonly HARD_CPU_DAMAGE_MULT = 1.35;
@@ -198,11 +204,25 @@ export class FightScene extends Phaser.Scene {
     player2Char?: string;
     vsCpu?: boolean;
     cpuDifficulty?: CpuDifficulty;
+    gameMode?: FightGameMode;
+    adventureVictories?: number;
+    adventureLives?: number;
+    /** Carried from previous Adventure round after a win (P1 HP not refilled). */
+    adventurePlayerHp?: number;
+    /** Carried when P1 loses a life but the same CPU round continues (CPU HP not refilled). */
+    adventureCpuHp?: number;
   }): void {
     const width = this.cameras.main.width;
     const height = this.cameras.main.height;
 
-    this.vsCpu = data.vsCpu === true;
+    this.gameMode = data.gameMode === 'adventure' ? 'adventure' : 'versus';
+    this.adventureVictories = Math.max(0, Math.floor(Number(data.adventureVictories) || 0));
+    this.adventureLives =
+      data.adventureLives != null
+        ? Math.max(0, Math.floor(Number(data.adventureLives)))
+        : ADVENTURE_START_LIVES;
+
+    this.vsCpu = data.vsCpu === true || this.gameMode === 'adventure';
     this.cpuDifficulty = data.cpuDifficulty === 'hard' ? 'hard' : 'easy';
 
     const p1Id = data.player1Char ?? 'player';
@@ -245,9 +265,17 @@ export class FightScene extends Phaser.Scene {
     this.ensurePlayerArrowTextures();
 
     this.fighter1 = new Fighter(this, p1X, floorY, def1, 1);
+    if (this.gameMode === 'adventure' && data.adventurePlayerHp != null) {
+      const maxHp = def1.hp;
+      this.fighter1.hp = Phaser.Math.Clamp(data.adventurePlayerHp, 1, maxHp);
+    }
     const cpuDmg =
       this.vsCpu && this.cpuDifficulty === 'hard' ? FightScene.HARD_CPU_DAMAGE_MULT : 1;
     this.fighter2 = new Fighter(this, p2X, floorY, def2, 2, cpuDmg);
+    if (this.gameMode === 'adventure' && data.adventureCpuHp != null) {
+      const maxHp2 = def2.hp;
+      this.fighter2.hp = Phaser.Math.Clamp(data.adventureCpuHp, 1, maxHp2);
+    }
     this.fighter1.setDepth(10);
     this.fighter2.setDepth(10);
 
@@ -292,13 +320,24 @@ export class FightScene extends Phaser.Scene {
     this.specialHud2.setDepth(100);
     this.refreshSpecialHud(this.time.now);
 
-    const title = this.add.text(width / 2, 28, 'VS', {
+    const title = this.add.text(width / 2, 28, this.gameMode === 'adventure' ? 'ADVENTURE' : 'VS', {
       fontSize: '24px',
       color: '#e94560',
       fontStyle: 'bold',
     });
     title.setOrigin(0.5);
     title.setDepth(100);
+
+    if (this.gameMode === 'adventure') {
+      const hud = this.add.text(
+        width / 2,
+        54,
+        `Wins: ${this.adventureVictories}   ·   Lives: ${this.adventureLives}`,
+        { fontSize: '15px', color: '#c9b458', fontStyle: 'bold' },
+      );
+      hud.setOrigin(0.5, 0);
+      hud.setDepth(100);
+    }
 
     const p1Label = this.add.text(120, 55, def1.name, { fontSize: '16px', color: '#fff' });
     p1Label.setOrigin(0.5, 0.5);
@@ -434,6 +473,17 @@ export class FightScene extends Phaser.Scene {
       this.boomerangs.push(b);
       return;
     }
+    if (req.type === 'teleport') {
+      const f = req.owner === 1 ? this.fighter1 : this.fighter2;
+      const w = this.cameras.main.width;
+      const margin = 52;
+      const nx = Phaser.Math.Clamp(f.x + req.deltaX, margin, w - margin);
+      f.setPosition(nx, f.y);
+      const body = f.body as Phaser.Physics.Arcade.Body;
+      body.updateFromGameObject();
+      body.setVelocityX(0);
+      return;
+    }
     this.groundHazards.push(
       new GroundHazard(
         this,
@@ -551,6 +601,24 @@ export class FightScene extends Phaser.Scene {
     this.refreshSpecialHud(now);
 
     if (this.fighter1.state === 'ko') {
+      if (this.gameMode === 'adventure') {
+        const livesLeft = this.adventureLives - 1;
+        if (livesLeft > 0) {
+          this.scene.start('Fight', {
+            player1Char: this.fighter1.characterDef.id,
+            player2Char: this.fighter2.characterDef.id,
+            vsCpu: true,
+            cpuDifficulty: this.cpuDifficulty,
+            gameMode: 'adventure',
+            adventureVictories: this.adventureVictories,
+            adventureLives: livesLeft,
+            adventureCpuHp: this.fighter2.hp,
+          });
+        } else {
+          this.scene.start('AdventureGameOver', { victories: this.adventureVictories });
+        }
+        return;
+      }
       const win = this.fighter2.characterDef;
       this.scene.start('Victory', {
         winner: 2,
@@ -558,6 +626,20 @@ export class FightScene extends Phaser.Scene {
         winnerName: win.name,
       });
     } else if (this.fighter2.state === 'ko') {
+      if (this.gameMode === 'adventure') {
+        const nextCpu = pickRandomCpuOpponent(this.fighter1.characterDef.id);
+        this.scene.start('Fight', {
+          player1Char: this.fighter1.characterDef.id,
+          player2Char: nextCpu,
+          vsCpu: true,
+          cpuDifficulty: this.cpuDifficulty,
+          gameMode: 'adventure',
+          adventureVictories: this.adventureVictories + 1,
+          adventureLives: this.adventureLives,
+          adventurePlayerHp: this.fighter1.hp,
+        });
+        return;
+      }
       const win = this.fighter1.characterDef;
       this.scene.start('Victory', {
         winner: 1,

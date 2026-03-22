@@ -1,6 +1,6 @@
 /**
- * Asset paths for Kenney platformer characters (CC0, OpenGameArt).
- * Uses individual pose PNGs - no tilesheet parsing.
+ * Asset paths for Kenney characters (CC0).
+ * Platformer Characters 1 + Toon Characters 1 (robot); individual pose PNGs — no tilesheet parsing.
  */
 
 /** Resolves a path under `public/` for Phaser `load.image` / `load.audio` (GitHub Pages subpath + `base: './'`). */
@@ -11,6 +11,8 @@ function publicUrl(pathFromPublic: string): string {
 }
 
 const KENNEY_BASE = publicUrl('assets/kenney_extracted/PNG');
+/** Robot from Kenney Toon Characters 1 (CC0); individual poses aligned with `KenneyPoseKey`. */
+const KENNEY_TOON_BASE = publicUrl('assets/kenney_toon_extracted/PNG');
 
 /** Fight scene: floor texture (`public/assets/backgrounds/`, vendored in repo). */
 export const SCENE_ASSETS = {
@@ -90,6 +92,17 @@ export const ZOMBIE_POSES: KenneyPoseMap = {
   action2: `${KENNEY_BASE}/Zombie/Poses/zombie_action2.png`,
 };
 
+export const ROBOT_POSES: KenneyPoseMap = {
+  idle: `${KENNEY_TOON_BASE}/Robot/Poses/robot_idle.png`,
+  walk1: `${KENNEY_TOON_BASE}/Robot/Poses/robot_walk1.png`,
+  walk2: `${KENNEY_TOON_BASE}/Robot/Poses/robot_walk2.png`,
+  jump: `${KENNEY_TOON_BASE}/Robot/Poses/robot_jump.png`,
+  kick: `${KENNEY_TOON_BASE}/Robot/Poses/robot_kick.png`,
+  hurt: `${KENNEY_TOON_BASE}/Robot/Poses/robot_hurt.png`,
+  action1: `${KENNEY_TOON_BASE}/Robot/Poses/robot_action1.png`,
+  action2: `${KENNEY_TOON_BASE}/Robot/Poses/robot_action2.png`,
+};
+
 /** Maps `CharacterDefinition.spritePrefix` → pose paths for BootScene. */
 export const KENNEY_CHARACTER_POSES: Record<string, KenneyPoseMap> = {
   player: PLAYER_POSES,
@@ -97,4 +110,5 @@ export const KENNEY_CHARACTER_POSES: Record<string, KenneyPoseMap> = {
   adventurer: ADVENTURER_POSES,
   soldier: SOLDIER_POSES,
   zombie: ZOMBIE_POSES,
+  robot: ROBOT_POSES,
 };

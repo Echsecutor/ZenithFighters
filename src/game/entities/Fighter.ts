@@ -199,6 +199,14 @@ export class Fighter extends Phaser.GameObjects.Sprite {
       };
     }
 
+    if (sp.kind === 'teleport') {
+      return {
+        type: 'teleport',
+        owner: this.playerIndex,
+        deltaX: dir * sp.forwardDistance,
+      };
+    }
+
     return null;
   }
 

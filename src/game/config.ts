@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { Types } from 'phaser';
+import { AdventureGameOverScene } from './scenes/AdventureGameOverScene';
 import { BootScene } from './scenes/BootScene';
 import { MainMenuScene } from './scenes/MainMenuScene';
 import { CharacterSelectScene } from './scenes/CharacterSelectScene';
@@ -32,5 +33,6 @@ export const gameConfig: Types.Core.GameConfig = {
     CharacterSelectScene,
     FightScene,
     VictoryScene,
+    AdventureGameOverScene,
   ],
 };

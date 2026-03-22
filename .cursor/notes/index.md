@@ -13,7 +13,7 @@ See [project-overview.md](project-overview.md) for tech stack, architecture, and
 |-------|------|-------------|
 | Project structure, tech stack, architecture | [project-overview.md](project-overview.md) | High-level overview of the codebase |
 | Terminal commands to avoid | [terminal-avoid.md](terminal-avoid.md) | PowerShell/System.Drawing crash; use hardcoded asset dims instead |
-| Assets (Kenney, paths, favicon, hazard VFX refs) | [assets.md](assets.md) | CC0 characters, `assetPaths.ts`, favicon; optional OGA/Kenney sources for fire/toxic ground art |
+| Assets (Kenney platformer + toon robot, paths, favicon, hazard VFX refs) | [assets.md](assets.md) | CC0 characters, `assetPaths.ts`, favicon; Toon **Robot** for Blink; optional OGA/Kenney sources for fire/toxic ground art |
 
 ## Folder Structure
 
@@ -28,7 +28,7 @@ ZenithFighters/
     game/
       config.ts       - Phaser config
       main.ts         - Game creation
-      scenes/         - Boot, MainMenu, CharacterSelect, Fight, Victory
+      scenes/         - Boot, MainMenu, CharacterSelect, Fight, Victory, AdventureGameOver
       entities/       - Fighter
       systems/        - InputManager, PhysicsManager, CpuController; specials (see `characters.ts`, `SpecialProjectile`, `BoomerangProjectile`, `GroundHazard`)
       data/           - Character definitions, assetPaths
